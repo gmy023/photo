@@ -15,6 +15,7 @@
         <li><a href="#home">首页</a></li>
         <li><a href="#about">关于</a></li>
         <li><a href="#works">作品</a></li>
+        <li><a href="#game">游戏</a></li>
         <li><a href="#contact">联系</a></li>
       </ul>
     </nav>
@@ -85,6 +86,21 @@
       </ul>
     </section>
 
+
+    <section id="game" class="game container">
+      <h2>🎲 猜数字</h2>
+      <p class="game-desc">我想好了一个 1~50 的整数，来猜猜看吧！</p>
+      <div class="game-box">
+        <div class="game-input-row">
+          <input id="guess" type="number" min="1" max="50" placeholder="输入你猜的数">
+          <button id="btn" class="btn" type="button">猜！</button>
+          <button id="reset" class="btn btn-ghost" type="button">再来一局</button>
+        </div>
+        <p id="msg" class="game-msg">请猜一个 1~50 的整数</p>
+        <p id="tries" class="game-tries"></p>
+      </div>
+    </section>
+
     <section id="contact" class="contact container">
       <h2>联系我</h2>
       <form class="contact-form" action="#" method="post">
@@ -108,6 +124,67 @@
   <footer class="site-footer">
     <p>© 2026 高曼荧个人作品集 | 用 HTML + CSS 手写</p>
   </footer>
+
+
+  <script>
+    (function () {
+      const guessEl = document.getElementById("guess");
+      const btn = document.getElementById("btn");
+      const resetBtn = document.getElementById("reset");
+      const msgEl = document.getElementById("msg");
+      const triesEl = document.getElementById("tries");
+
+      let answer, tries, gameOver;
+
+      function newGame() {
+        answer = Math.floor(Math.random() * 50) + 1;
+        tries = 0;
+        gameOver = false;
+        msgEl.textContent = "请猜一个 1~50 的整数";
+        msgEl.className = "game-msg";
+        triesEl.textContent = "";
+        guessEl.value = "";
+        guessEl.disabled = false;
+        btn.disabled = false;
+        guessEl.focus();
+      }
+
+      function check() {
+        if (gameOver) return;
+        const raw = guessEl.value.trim();
+        const guess = Number(raw);
+        if (raw === "" || !Number.isInteger(guess) || guess < 1 || guess > 50) {
+          msgEl.textContent = "⚠️ 请输入 1~50 的整数哦";
+          msgEl.className = "game-msg is-warn";
+          return;
+        }
+        tries++;
+        if (guess === answer) {
+          msgEl.textContent = `🎉 猜对了！答案就是 ${answer}，共用 ${tries} 次`;
+          msgEl.className = "game-msg is-win";
+          gameOver = true;
+          guessEl.disabled = true;
+          btn.disabled = true;
+        } else if (guess > answer) {
+          msgEl.textContent = "大了，往小猜 👇";
+          msgEl.className = "game-msg";
+        } else {
+          msgEl.textContent = "小了，往大猜 👆";
+          msgEl.className = "game-msg";
+        }
+        triesEl.textContent = `已猜 ${tries} 次`;
+        guessEl.select();
+      }
+
+      btn.addEventListener("click", check);
+      resetBtn.addEventListener("click", newGame);
+      guessEl.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") check();
+      });
+
+      newGame();
+    })();
+  </script>
 
 </body>
 </html>

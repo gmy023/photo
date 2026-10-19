@@ -325,3 +325,110 @@ body.greeting-page {
   padding: 24px 20px;
   font-size: 0.9rem;
 }
+
+/* ---------- 猜数字游戏 ---------- */
+.game {
+  padding-top: 48px;
+  padding-bottom: 24px;
+}
+
+.game h2 {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+  color: #111827;
+}
+
+.game-desc {
+  color: #6b7280;
+  margin-bottom: 20px;
+}
+
+.game-box {
+  max-width: 640px;
+  background: #fff;
+  padding: 28px 24px;
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+}
+
+.game-input-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+#guess {
+  flex: 1 1 180px;
+  padding: 12px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  color: #111827;
+  background: #fff;
+}
+
+#guess:focus {
+  outline: none;
+  border-color: #4f7cff;
+  box-shadow: 0 0 0 3px rgba(79, 124, 255, 0.18);
+}
+
+#guess:disabled {
+  background: #f3f4f6;
+  color: #9ca3af;
+}
+
+.game .btn {
+  padding: 12px 24px;
+}
+
+.btn-ghost {
+  background: #fff;
+  color: #4f7cff;
+  border: 1px solid #4f7cff;
+}
+
+.btn-ghost:hover {
+  background: #eef2ff;
+  color: #3b63e8;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.game-msg {
+  margin-top: 18px;
+  font-size: 1.05rem;
+  color: #374151;
+}
+
+.game-msg.is-win {
+  color: #16a34a;
+  font-weight: 700;
+}
+
+.game-msg.is-warn {
+  color: #d97706;
+}
+
+.game-tries {
+  margin-top: 6px;
+  font-size: 0.9rem;
+  color: #9ca3af;
+}
+
+/* ---------- 隐藏数字输入框的上下箭头 ---------- */
+#guess::-webkit-outer-spin-button,
+#guess::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+#guess {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
