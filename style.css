@@ -648,3 +648,76 @@ body.greeting-page {
     grid-template-columns: repeat(4, 1fr);
   }
 }
+
+.wardrobe-more {
+  margin-top: 20px;
+}
+
+.page-wardrobe {
+  padding-top: 40px;
+  padding-bottom: 72px;
+}
+
+.wardrobe-count {
+  display: inline-block;
+  margin-bottom: 20px;
+  padding: 8px 18px;
+  background: #eef2ff;
+  color: #4f7cff;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.cloth-img {
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  background: #f8fafc;
+}
+
+.tag {
+  display: inline-block;
+  margin: 0 8px 8px 0;
+  padding: 2px 8px;
+  border-radius: 5px;
+  background: #eef2ff;
+  color: #4f7cff;
+  font-size: 0.78rem;
+}
+
+.tag.is-lux {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.day-notes {
+  max-width: 760px;
+  margin: 24px 0;
+  background: #fff;
+  padding: 24px;
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+}
+
+.day-notes h3 {
+  font-size: 1.05rem;
+  margin-bottom: 12px;
+  color: #111827;
+}
+
+.day-notes li {
+  margin-bottom: 8px;
+  color: #4b5563;
+  font-size: 0.95rem;
+}
+
+.day-notes code {
+  background: #eef2ff;
+  color: #4f7cff;
+  padding: 1px 6px;
+  border-radius: 5px;
+  font-size: 0.9em;
+}

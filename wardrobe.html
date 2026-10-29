@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>我的衣橱 | 高曼荧的个人作品集</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav container">
+      <a class="logo" href="index.html">高曼荧<span>.design</span></a>
+      <ul class="nav-menu">
+        <li><a href="index.html#wardrobe">← 回到作品集</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section class="wardrobe container page-wardrobe">
+      <h2>👗 我的衣橱（DOM 渲染版）</h2> 
+
+      <p class="wardrobe-count" id="count">正在渲染衣橱…</p>
+
+      <ul class="wardrobe-grid" id="wardrobe"></ul>
+
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 高曼荧个人作品集 | 用 HTML + CSS + JS 手写</p>
+  </footer>
+
+  <script>
+    (function () {
+      const wardrobe = [
+        { id: 1, name: "白色T恤",   color: "白色", season: "夏", price: 99,  emoji: "👕" },
+        { id: 2, name: "蓝色衬衫",   color: "蓝色", season: "春", price: 199, emoji: "👔" },
+        { id: 3, name: "红色卫衣",   color: "红色", season: "秋", price: 259, emoji: "🧥" },
+        { id: 4, name: "黑色西裤",   color: "黑色", season: "四季", price: 299, emoji: "👖" },
+        { id: 5, name: "米色风衣",   color: "米色", season: "春", price: 499, emoji: "🧥" },
+        { id: 6, name: "牛仔外套",   color: "蓝色", season: "秋", price: 359, emoji: "👕" },
+        { id: 7, name: "灰色毛衣",   color: "灰色", season: "冬", price: 279, emoji: "🧶" },
+        { id: 8, name: "碎花连衣裙", color: "花色", season: "夏", price: 329, emoji: "👗" },
+        { id: 9, name: "羽绒服",     color: "黑色", season: "冬", price: 899, emoji: "🧥" },
+        { id: 10, name: "运动短裤",  color: "灰色", season: "夏", price: 129, emoji: "🩳" }
+      ];
+
+      const container = document.querySelector("#wardrobe");   
+      const countEl = document.getElementById("count");
+
+      for (const item of wardrobe) {
+        const li = document.createElement("li");          
+        const card = document.createElement("article");   
+        card.className = "card cloth-card";               
+
+        const img = document.createElement("div");
+        img.className = "cloth-img";
+        img.textContent = item.emoji;
+
+        const nameEl = document.createElement("h3");
+        nameEl.textContent = item.name;      // textContent 安全：就算内容是 "<b>加粗</b>" 也原样显示
+
+        const metaEl = document.createElement("p");
+        metaEl.className = "cloth-meta";
+        metaEl.textContent = `¥${item.price} · ${item.color}`;
+
+        const tagEl = document.createElement("span");
+        tagEl.className = "tag";
+        tagEl.textContent = item.season;
+
+        card.appendChild(img);
+        card.appendChild(nameEl);
+        card.appendChild(metaEl);
+        card.appendChild(tagEl);
+
+        if (item.price > 300) {
+          const luxEl = document.createElement("span");
+          luxEl.className = "tag is-lux";
+          luxEl.textContent = "💎 轻奢";
+          card.appendChild(luxEl);
+        }
+
+        li.appendChild(card);
+        container.appendChild(li);           
+      }
+
+      let total = 0;
+      for (const item of wardrobe) {
+        total = total + item.price;
+      }
+      const avg = Math.round(total / wardrobe.length);
+      countEl.textContent = `共 ${wardrobe.length} 件，平均 ¥${avg}`;
+
+    })();
+  </script>
+</body>
+</html>
