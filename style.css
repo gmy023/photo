@@ -629,6 +629,10 @@ body.greeting-page {
   color: #16a34a;
 }
 
+.wardrobe-tip.is-error {
+  color: #dc2626;
+}
+
 @media (min-width: 640px) {
   .wardrobe-grid {
     grid-template-columns: repeat(2, 1fr);
