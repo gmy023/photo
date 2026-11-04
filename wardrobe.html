@@ -33,7 +33,9 @@
 
   <script>
     (function () {
-      const wardrobe = [
+      const KEY = "my_wardrobe";
+
+      const defaultWardrobe = [
         { id: 1, name: "白色T恤",   color: "白色", season: "夏", price: 99,  emoji: "👕" },
         { id: 2, name: "蓝色衬衫",   color: "蓝色", season: "春", price: 199, emoji: "👔" },
         { id: 3, name: "红色卫衣",   color: "红色", season: "秋", price: 259, emoji: "🧥" },
@@ -46,20 +48,31 @@
         { id: 10, name: "运动短裤",  color: "灰色", season: "夏", price: 129, emoji: "🩳" }
       ];
 
-      const container = document.querySelector("#wardrobe");   
+      function loadData() {
+        try {
+          const str = localStorage.getItem(KEY);
+          return str ? JSON.parse(str) : defaultWardrobe.slice();
+        } catch {
+          return defaultWardrobe.slice();
+        }
+      }
+
+      const wardrobe = loadData();
+
+      const container = document.querySelector("#wardrobe");
       const countEl = document.getElementById("count");
 
       for (const item of wardrobe) {
-        const li = document.createElement("li");          
-        const card = document.createElement("article");   
-        card.className = "card cloth-card";               
+        const li = document.createElement("li");
+        const card = document.createElement("article");
+        card.className = "card cloth-card";
 
         const img = document.createElement("div");
         img.className = "cloth-img";
-        img.textContent = item.emoji;
+        img.textContent = item.emoji || "👕";
 
         const nameEl = document.createElement("h3");
-        nameEl.textContent = item.name;      // textContent 安全：就算内容是 "<b>加粗</b>" 也原样显示
+        nameEl.textContent = item.name;
 
         const metaEl = document.createElement("p");
         metaEl.className = "cloth-meta";
@@ -82,17 +95,17 @@
         }
 
         li.appendChild(card);
-        container.appendChild(li);           
+        container.appendChild(li);
       }
 
       let total = 0;
       for (const item of wardrobe) {
         total = total + item.price;
       }
-      const avg = Math.round(total / wardrobe.length);
+      const avg = wardrobe.length ? Math.round(total / wardrobe.length) : 0;
       countEl.textContent = `共 ${wardrobe.length} 件，平均 ¥${avg}`;
-
     })();
   </script>
+
 </body>
 </html>

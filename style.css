@@ -326,7 +326,6 @@ body.greeting-page {
   font-size: 0.9rem;
 }
 
-/* ---------- 猜数字游戏 ---------- */
 .game {
   padding-top: 48px;
   padding-bottom: 24px;
@@ -622,15 +621,53 @@ body.greeting-page {
   padding: 12px 28px;
 }
 
-.wardrobe-tip {
-  margin-top: 14px;
-  min-height: 1.4em;
-  font-size: 0.925rem;
-  color: #16a34a;
+.wardrobe-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
 }
 
-.wardrobe-tip.is-error {
-  color: #dc2626;
+.wardrobe-search {
+  padding: 7px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 999px;
+  background: #fff;
+  color: #111827;
+  font-size: 0.925rem;
+  font-family: inherit;
+}
+
+.wardrobe-search:focus {
+  outline: none;
+  border-color: #4f7cff;
+  box-shadow: 0 0 0 3px rgba(79, 124, 255, 0.18);
+}
+
+.save-toast {
+  position: fixed;
+  top: 76px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 22px;
+  border-radius: 999px;
+  background: #16a34a;
+  color: #fff;
+  font-size: 0.95rem;
+  box-shadow: 0 8px 20px rgba(22, 163, 74, 0.3);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 20;
+}
+
+.save-toast.is-show {
+  opacity: 1;
+}
+
+.save-toast.is-error {
+  background: #dc2626;
+  box-shadow: 0 8px 20px rgba(220, 38, 38, 0.3);
 }
 
 @media (min-width: 640px) {
