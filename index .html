@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>高曼荧的个人作品集</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="save-toast" id="saveToast"></div>
+
+  <header class="site-header">
+    <nav class="nav container">
+      <a class="logo" href="#home">高曼荧<span>.design</span></a>
+
+      <ul class="nav-menu">
+        <li><a href="#home">首页</a></li>
+        <li><a href="#about">关于</a></li>
+        <li><a href="#works">作品</a></li>
+        <li><a href="#wardrobe">衣橱</a></li>
+        <li><a href="day19/http-cards.html">HTTP 卡片</a></li>
+        <li><a href="#game">游戏</a></li>
+        <li><a href="#contact">联系</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+
+    <section id="home" class="hero">
+      <h1>你好，我是高曼荧</h1>
+      <p>一名热爱排版与细节的 UI 设计师 / 前端学习者。</p>
+      <a class="btn" href="#works">看看我的作品</a>
+    </section>
+
+    <section id="about" class="about container">
+      <img class="avatar" src="https://picsum.photos/seed/avatar/320/320" alt="高曼荧的头像照片">
+      <article class="about-text">
+        <h2>关于我</h2>
+        <p>我是一个前端设计小白，擅长把复杂的信息整理成清爽的页面，习惯从用户的阅读顺序出发设计布局。</p>
+        <p>目前正在系统学习 HTML 与 CSS，相信手写代码是理解设计落地最好的方式。欢迎和我聊聊设计、前端或者咖啡。</p>
+      </article>
+    </section>
+
+    <section id="works" class="works container">
+      <h2>作品墙</h2>
+      <ul class="works-grid">
+        <li>
+          <article class="card">
+            <img src="img/building.jpg" alt="building">
+            <h3>黄昏建筑</h3>
+            <p>黄昏时分的建筑美景</p>
+          </article>
+        </li>
+        <li>
+          <article class="card">
+            <img src="img/car.jpg" alt="car">
+            <h3>落日轻轨</h3>
+            <p>强调对比度的城市景色</p>
+          </article>
+        </li>
+        <li>
+          <article class="card">
+            <img src="img/park.jpg" alt="park">
+            <h3>庭院 婚礼</h3>
+            <p>中式建筑与西式婚礼的碰撞</p>
+          </article>
+        </li>
+        <li>
+          <article class="card">
+            <img src="img/station.jpg" alt="">
+            <h3>多色轻轨站</h3>
+            <p>玻璃映射下充满日式设计的轻轨站</p>
+          </article>
+        </li>
+        <li>
+          <article class="card">
+            <img src="img/sunshine.jpg" alt="sunshine">
+            <h3>阳光下的艺术建筑</h3>
+            <p>阳光洒在建筑上，营造出温暖而现代的氛围</p>
+          </article>
+        </li>
+        <li>
+          <article class="card">
+            <img src="https://picsum.photos/seed/works6/600/400" alt="作品六：环保公益活动海报设计图">
+            <h3>环保公益海报</h3>
+            <p>用几何插画讲一个回收的故事。</p>
+          </article>
+        </li>
+      </ul>
+    </section>
+
+    <section id="wardrobe" class="wardrobe container">
+      <h2>👗 我的衣橱</h2>
+      <p class="wardrobe-desc">
+        衣服数据存在 <code>localStorage</code> 里，添加、删除后刷新页面也不会丢 ——
+        页面打开时读数据、增删之后存回去，再用 <code>map</code> 把卡片渲染出来，
+        还可以按名称搜索、按价格从低到高排序。
+      </p>
+
+      <div class="wardrobe-toolbar">
+        <div class="wardrobe-filters" id="wardrobeFilters">
+          <button class="chip is-active" type="button" data-season="全部">全部</button>
+          <button class="chip" type="button" data-season="春">春</button>
+          <button class="chip" type="button" data-season="夏">夏</button>
+          <button class="chip" type="button" data-season="秋">秋</button>
+          <button class="chip" type="button" data-season="冬">冬</button>
+          <button class="chip" type="button" data-season="四季">四季</button>
+        </div>
+        <div class="wardrobe-tools">
+          <input class="wardrobe-search" id="wardrobeSearch" type="text" placeholder="搜索名称，如：T恤">
+          <button class="chip" type="button" id="sortBtn">按价格排序</button>
+        </div>
+        <p class="wardrobe-stats" id="wardrobeStats"></p>
+      </div>
+
+      <ul class="wardrobe-grid" id="wardrobeGrid"></ul>
+
+      <form class="wardrobe-form" id="wardrobeForm">
+        <h3>➕ 加一件新衣服</h3>
+        <div class="wardrobe-form-row">
+          <div class="form-item">
+            <label for="clothName">名称</label>
+            <input type="text" id="clothName" placeholder="如：卡其短裙" required>
+          </div>
+          <div class="form-item">
+            <label for="clothColor">颜色</label>
+            <input type="text" id="clothColor" placeholder="如：卡其" required>
+          </div>
+          <div class="form-item">
+            <label for="clothSeason">季节</label>
+            <select id="clothSeason">
+              <option value="春">春</option>
+              <option value="夏">夏</option>
+              <option value="秋">秋</option>
+              <option value="冬">冬</option>
+              <option value="四季">四季</option>
+            </select>
+          </div>
+          <div class="form-item">
+            <label for="clothPrice">价格（元）</label>
+            <input type="number" id="clothPrice" min="1" placeholder="如：189" required>
+          </div>
+        </div>
+        <div class="wardrobe-form-actions">
+          <button type="submit" class="btn">加入衣橱</button>
+        </div>
+      </form>
+
+      <p class="wardrobe-more">
+        <a class="btn btn-ghost" href="wardrobe.html"> 打开完整衣橱页：DOM 动态渲染练习</a>
+      </p>
+    </section>
+
+    <section id="game" class="game container">
+      <h2>🎲 猜数字</h2>
+      <p class="game-desc">我想好了一个 1~50 的整数，来猜猜看吧！</p>
+      <div class="game-box">
+        <div class="game-input-row">
+          <input id="guess" type="number" min="1" max="50" placeholder="输入你猜的数">
+          <button id="btn" class="btn" type="button">猜！</button>
+          <button id="reset" class="btn btn-ghost" type="button">再来一局</button>
+        </div>
+        <p id="msg" class="game-msg">请猜一个 1~50 的整数</p>
+        <p id="tries" class="game-tries"></p>
+      </div>
+    </section>
+
+    <section id="contact" class="contact container">
+      <h2>联系我</h2>
+      <form class="contact-form" action="#" method="post">
+        <div class="form-item">
+          <label for="name">姓名</label>
+          <input type="text" id="name" name="name" placeholder="怎么称呼你？">
+        </div>
+        <div class="form-item">
+          <label for="email">邮箱</label>
+          <input type="email" id="email" name="email" placeholder="you@example.com">
+        </div>
+        <div class="form-item">
+          <label for="message">留言</label>
+          <textarea id="message" name="message" rows="5" placeholder="想聊点什么？"></textarea>
+        </div>
+        <button type="submit" class="btn">发送留言</button>
+      </form>
+    </section>
+
+  </main>
+  <footer class="site-footer">
+    <p>© 2026 高曼荧个人作品集 | 用 HTML + CSS + JS 手写</p>
+  </footer>
+
+
+  <script>
+    (function () {
+      const guessEl = document.getElementById("guess");
+      const btn = document.getElementById("btn");
+      const resetBtn = document.getElementById("reset");
+      const msgEl = document.getElementById("msg");
+      const triesEl = document.getElementById("tries");
+
+      let answer, tries, gameOver;
+
+      function newGame() {
+        answer = Math.floor(Math.random() * 50) + 1;
+        tries = 0;
+        gameOver = false;
+        msgEl.textContent = "请猜一个 1~50 的整数";
+        msgEl.className = "game-msg";
+        triesEl.textContent = "";
+        guessEl.value = "";
+        guessEl.disabled = false;
+        btn.disabled = false;
+        guessEl.focus();
+      }
+
+      function check() {
+        if (gameOver) return;
+        const raw = guessEl.value.trim();
+        const guess = Number(raw);
+        if (raw === "" || !Number.isInteger(guess) || guess < 1 || guess > 50) {
+          msgEl.textContent = "⚠️ 请输入 1~50 的整数哦";
+          msgEl.className = "game-msg is-warn";
+          return;
+        }
+        tries++;
+        if (guess === answer) {
+          msgEl.textContent = `🎉 猜对了！答案就是 ${answer}，共用 ${tries} 次`;
+          msgEl.className = "game-msg is-win";
+          gameOver = true;
+          guessEl.disabled = true;
+          btn.disabled = true;
+        } else if (guess > answer) {
+          msgEl.textContent = "大了，往小猜 👇";
+          msgEl.className = "game-msg";
+        } else {
+          msgEl.textContent = "小了，往大猜 👆";
+          msgEl.className = "game-msg";
+        }
+        triesEl.textContent = `已猜 ${tries} 次`;
+        guessEl.select();
+      }
+
+      btn.addEventListener("click", check);
+      resetBtn.addEventListener("click", newGame);
+      guessEl.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") check();
+      });
+
+      newGame();
+    })();
+  </script>
+
+
+  <script>
+    (function () {
+      const KEY = "my_wardrobe";
+
+      const defaultWardrobe = [
+        { id: 1, name: "白色T恤",   color: "白色", season: "夏", price: 99  },
+        { id: 2, name: "蓝色衬衫",   color: "蓝色", season: "春", price: 199 },
+        { id: 3, name: "红色卫衣",   color: "红色", season: "秋", price: 259 },
+        { id: 4, name: "黑色西裤",   color: "黑色", season: "四季", price: 299 },
+        { id: 5, name: "米色风衣",   color: "米色", season: "春", price: 499 },
+        { id: 6, name: "牛仔外套",   color: "蓝色", season: "秋", price: 359 },
+        { id: 7, name: "灰色毛衣",   color: "灰色", season: "冬", price: 279 },
+        { id: 8, name: "碎花连衣裙", color: "花色", season: "夏", price: 329 },
+        { id: 9, name: "羽绒服",     color: "黑色", season: "冬", price: 899 },
+        { id: 10, name: "运动短裤",  color: "灰色", season: "夏", price: 129 }
+      ];
+
+      function loadData() {
+        try {
+          const str = localStorage.getItem(KEY);
+          return str ? JSON.parse(str) : defaultWardrobe.slice();
+        } catch {
+          return defaultWardrobe.slice();
+        }
+      }
+
+      function saveData(arr) {
+        localStorage.setItem(KEY, JSON.stringify(arr));
+      }
+
+      if (localStorage.getItem(KEY) === null) {
+        saveData(defaultWardrobe);
+      }
+
+      let currentSeason = "全部";
+
+      const gridEl = document.getElementById("wardrobeGrid");
+      const statsEl = document.getElementById("wardrobeStats");
+      const filtersEl = document.getElementById("wardrobeFilters");
+      const formEl = document.getElementById("wardrobeForm");
+      const searchEl = document.getElementById("wardrobeSearch");
+      const sortBtn = document.getElementById("sortBtn");
+      const toastEl = document.getElementById("saveToast");
+
+      function showToast(text, isError) {
+        toastEl.textContent = text;
+        if (isError) {
+          toastEl.classList.add("is-error");
+        } else {
+          toastEl.classList.remove("is-error");
+        }
+        toastEl.classList.add("is-show");
+        setTimeout(function () {
+          toastEl.classList.remove("is-show");
+        }, 2000);
+      }
+
+      function addCloth(item) {
+        const wardrobe = loadData();
+        wardrobe.push({
+          id: Date.now(),
+          name: item.name,
+          color: item.color,
+          season: item.season,
+          price: item.price
+        });
+        saveData(wardrobe);
+        render();
+      }
+
+      function removeCloth(id) {
+        const wardrobe = loadData().filter(item => String(item.id) !== String(id));
+        saveData(wardrobe);
+        render();
+      }
+
+      function findBySeason(season) {
+        const wardrobe = loadData();
+        if (season === "全部") return wardrobe;
+        return wardrobe.filter(item => item.season === season);
+      }
+
+      function render() {
+        let list = findBySeason(currentSeason);
+        const word = searchEl.value.trim();
+        if (word) {
+          list = list.filter(item => item.name.includes(word));
+        }
+
+        gridEl.innerHTML = list.map(item => {
+          const { id, name, color, season, price } = item;
+          return `
+            <li>
+              <article class="card cloth-card">
+                <h3>${name}</h3>
+                <p class="cloth-meta">
+                  <span class="cloth-dot" style="background:${colorToHex(color)}"></span>
+                  ${color} · ${season}
+                </p>
+                <p class="cloth-price">¥${price}</p>
+                <button class="cloth-del" type="button" data-id="${id}">删除</button>
+              </article>
+            </li>`;
+        }).join("");
+
+        if (list.length === 0) {
+          gridEl.innerHTML = `<li class="cloth-empty">没有找到符合条件的衣服，下面加一件吧 👇</li>`;
+        }
+
+        let total = 0;
+        for (let i = 0; i < list.length; i++) {
+          total = total + list[i].price;
+        }
+        const avg = list.length ? Math.round(total / list.length) : 0;
+        statsEl.textContent = `共 ${list.length} 件 · 均价 ¥${avg}`;
+      }
+
+      function colorToHex(color) {
+        const map = {
+          "白色": "#f3f4f6", "黑色": "#111827", "蓝色": "#3b82f6", "红色": "#ef4444",
+          "灰色": "#9ca3af", "米色": "#e7d8c0", "花色": "#f472b6", "卡其": "#c2a878",
+          "绿色": "#22c55e", "黄色": "#facc15", "紫色": "#a855f7"
+        };
+        return map[color] || "#d1d5db";
+      }
+
+      gridEl.addEventListener("click", function (e) {
+        if (!e.target.matches(".cloth-del")) return;
+        removeCloth(Number(e.target.dataset.id));
+        showToast("🗑️ 已删掉一件");
+      });
+
+      const chips = filtersEl.querySelectorAll(".chip");
+      for (let i = 0; i < chips.length; i++) {
+        chips[i].addEventListener("click", function () {
+          currentSeason = this.dataset.season;
+          for (let j = 0; j < chips.length; j++) {
+            chips[j].classList.remove("is-active");
+          }
+          this.classList.add("is-active");
+          render();
+        });
+      }
+
+      searchEl.addEventListener("input", function () {
+        render();
+      });
+
+      sortBtn.addEventListener("click", function () {
+        const wardrobe = loadData().sort((a, b) => a.price - b.price);
+        saveData(wardrobe);
+        render();
+        showToast("⬆️ 已按价格从低到高排序");
+      });
+
+      formEl.addEventListener("submit", function (e) {
+        e.preventDefault();
+        const name = document.getElementById("clothName").value.trim();
+        const color = document.getElementById("clothColor").value.trim();
+        const season = document.getElementById("clothSeason").value;
+        const price = Number(document.getElementById("clothPrice").value);
+        if (!name || !color || !(price > 0)) {
+          showToast("⚠️ 请填写名称、颜色和大于 0 的价格", true);
+          return;
+        }
+
+        addCloth({ name, color, season, price });
+        formEl.reset();
+        showToast("✅ 已保存");
+      });
+
+      render();
+
+      window.wardrobeApp = { loadData, saveData, addCloth, removeCloth, findBySeason };
+    })();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HTTP 知识卡片 | 高曼荧的个人作品集</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: sans-serif; background: #f5f3ff; padding: 24px; color: #1f2937; }
+    h1 { text-align: center; margin-bottom: 6px; }
+    .lead { text-align: center; color: #6b7280; margin-bottom: 28px; }
+    .grid { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
+    .card {
+      width: 300px; background: #fff; border-radius: 14px; padding: 16px;
+      box-shadow: 0 3px 10px rgba(0,0,0,.08); border-top: 5px solid #7c5cff;
+    }
+    .card h2 { margin: 0 0 8px; font-size: 17px; }
+    .card p { font-size: 14px; line-height: 1.7; }
+    .card pre {
+      background: #f4f2ff; padding: 8px; border-radius: 8px; font-size: 12px;
+      line-height: 1.6; overflow-x: auto; margin-top: 8px;
+    }
+    .code200 { color: #16a34a; }
+    .code4xx { color: #d97706; }
+    .code5xx { color: #dc2626; }
+    .section-title { text-align: center; margin: 36px 0 18px; font-size: 22px; }
+    .api-list {
+      width: 640px; max-width: 100%; background: #fff; border-radius: 14px; padding: 20px;
+      margin: 0 auto; box-shadow: 0 3px 10px rgba(0,0,0,.08); border-top: 5px solid #7c5cff;
+    }
+    .api-list h3 { font-size: 16px; margin-bottom: 10px; }
+    .api-list ol { padding-left: 22px; font-size: 14px; line-height: 2; }
+    .api-list .why {
+      margin-top: 14px; font-size: 14px; line-height: 1.8;
+      background: #f4f2ff; border-radius: 8px; padding: 10px 14px;
+    }
+    .summary {
+      width: 640px; max-width: 100%; margin: 18px auto 0; background: #fff;
+      border-radius: 14px; padding: 16px 20px; box-shadow: 0 3px 10px rgba(0,0,0,.08);
+      border-top: 5px solid #7c5cff; font-size: 15px; line-height: 1.8;
+    }
+    .back { display: block; text-align: center; margin: 30px 0 10px; color: #7c5cff; text-decoration: none; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>🌐 HTTP 知识卡片</h1>
+  <p class="lead">打印/收藏这页，忘了就翻一翻</p>
+
+  <div class="grid">
+    <div class="card">
+      <h2>① 请求四件套</h2>
+      <p>一次请求包含：<b>方法 + URL + 请求头 + 请求体</b>。
+         响应包含：<b>状态码 + 响应头 + 响应体</b>。</p>
+      <pre>GET /api/clothes HTTP/1.1
+Host: localhost:8000
+Authorization: Bearer ***</pre>
+    </div>
+
+    <div class="card">
+      <h2>② 请求方法</h2>
+      <p>GET 查 ｜ POST 新增 ｜ PUT/PATCH 改 ｜ DELETE 删</p>
+      <pre>GET    /api/clothes
+POST   /api/clothes
+PATCH  /api/clothes/3
+DELETE /api/clothes/3</pre>
+    </div>
+
+    <div class="card">
+      <h2>③ 状态码速记</h2>
+      <p>
+        <span class="code200">2xx 成功</span>：<span class="code200">200 OK / 201 Created</span><br>
+        <span class="code4xx">4xx 你的锅</span>：<span class="code4xx">400 参数错 / 401 未登录 / 403 无权限 / 404 不存在</span><br>
+        <span class="code5xx">5xx 服务器的锅</span>：<span class="code5xx">500 内部错误 / 502 网关错 / 503 服务不可用</span>
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>④ Cookie vs Token</h2>
+      <p><b>Cookie</b>：浏览器自动携带，适合传统网页。<br>
+         <b>Token(JWT)</b>：前端自己存（localStorage），每次手动放请求头，前后端分离项目主流。</p>
+      <pre>Authorization: Bearer &lt;token&gt;</pre>
+    </div>
+
+    <div class="card">
+      <h2>⑤ 跨域 CORS</h2>
+      <p>协议/域名/端口不同 = 跨域，被<b>浏览器</b>拦截。解决靠<b>后端</b>在响应头声明允许的来源：</p>
+      <pre>Access-Control-Allow-Origin: http://localhost:5173</pre>
+    </div>
+
+    <div class="card">
+      <h2>⑥ RESTful 命名</h2>
+      <p>用<b>名词 + 方法</b>表达动作，不用动词拼接口名。</p>
+      <pre>✅ GET /api/clothes
+✅ DELETE /api/clothes/3
+❌ /api/getClothes
+❌ /api/deleteCloth?id=3</pre>
+    </div>
+
+    <div class="card">
+      <h2>⑦ 我最容易忘的一条</h2>
+      <p><b>fetch 不会自动报错</b>：后端出错时也可能返回一段 JSON，
+         必须先检查状态码是不是 2xx，再解析数据。</p>
+      <pre>先看 Status Code
+再读 Response</pre>
+    </div>
+  </div>
+
+  <h2 class="section-title">📒 AI 衣橱 · 6 个 RESTful 接口设计</h2>
+  <div class="api-list">
+    <h3>接口清单</h3>
+    <ol>
+      <li><b>GET /api/clothes</b> —— 获取衣橱列表</li>
+      <li><b>POST /api/clothes</b> —— 新增衣物</li>
+      <li><b>PATCH /api/clothes/:id</b> —— 修改衣物信息（如改价格）</li>
+      <li><b>DELETE /api/clothes/:id</b> —— 删除衣物</li>
+      <li><b>POST /api/outfits/suggestions</b> —— 获取 AI 搭配建议</li>
+      <li><b>POST /api/auth/login</b> —— 用户登录</li>
+    </ol>
+    <p class="why">
+      <b>思考题：为什么"AI 搭配建议"适合用 POST 而不是 GET？</b><br>
+      GET 的参数拼在 URL 上，有长度限制还会被记录在历史里；
+      而搭配建议需要携带衣橱清单、场合、天气等可能很长的数据，
+      放进 POST 的请求体里更安全、也没有长度顾虑。
+    </p>
+  </div>
+
+  <div class="summary">
+    <b>一句话总结（401 vs 404）：</b>
+    401 是"你没带通行证"（未登录/凭证无效），404 是"这个地址上没有你要找的东西"（资源不存在）。
+  </div>
+
+  <a class="back" href="../index.html">← 回到作品集</a>
+</body>
+</html>
