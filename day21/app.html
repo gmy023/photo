@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>衣橱 + 天气 | 高曼荧的个人作品集</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <div class="save-toast" id="wd-toast"></div>
+
+  <header class="site-header">
+    <nav class="nav container">
+      <a class="logo" href="../index.html">高曼荧<span>.design</span></a>
+      <ul class="nav-menu">
+        <li><a href="../index.html#wardrobe">← 回到作品集</a></li>
+        <li><a href="../day20/weather.html">第 20 天天气页</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section class="wardrobe container app-page">
+      <h2>👗 我的衣橱</h2>
+      <p class="wardrobe-desc">
+        上半部分是本地的衣橱：数据存在 <code>localStorage</code> 里，可增、可删、可搜索、可按价格排序，刷新页面不丢。
+        这一版修掉了几个老问题：删除按 <code>id</code> 走不会删错、价格只收大于 0 的数字、衣橱为空时点清空只给提示不报错。
+      </p>
+
+      <div class="wardrobe-toolbar">
+        <div class="wardrobe-filters" id="wd-filters">
+          <button class="chip is-active" type="button" data-season="全部">全部</button>
+          <button class="chip" type="button" data-season="春">春</button>
+          <button class="chip" type="button" data-season="夏">夏</button>
+          <button class="chip" type="button" data-season="秋">秋</button>
+          <button class="chip" type="button" data-season="冬">冬</button>
+          <button class="chip" type="button" data-season="四季">四季</button>
+        </div>
+        <div class="wardrobe-tools">
+          <input class="wardrobe-search" id="wd-search" type="text" placeholder="搜索名称或颜色">
+          <button class="chip" type="button" id="wd-sort">按价格排序</button>
+          <button class="chip chip-danger" type="button" id="wd-clear">清空</button>
+        </div>
+        <p class="wardrobe-stats" id="wd-stats"></p>
+      </div>
+
+      <ul class="wardrobe-grid" id="wd-grid"></ul>
+
+      <form class="wardrobe-form" id="wd-form">
+        <h3>➕ 加一件新衣服</h3>
+        <div class="wardrobe-form-row">
+          <div class="form-item">
+            <label for="wd-name">名称</label>
+            <input type="text" id="wd-name" placeholder="如：卡其短裙" required>
+          </div>
+          <div class="form-item">
+            <label for="wd-color">颜色</label>
+            <input type="text" id="wd-color" placeholder="如：卡其" required>
+          </div>
+          <div class="form-item">
+            <label for="wd-season">季节</label>
+            <select id="wd-season">
+              <option value="春">春</option>
+              <option value="夏">夏</option>
+              <option value="秋">秋</option>
+              <option value="冬">冬</option>
+              <option value="四季">四季</option>
+            </select>
+          </div>
+          <div class="form-item">
+            <label for="wd-price">价格（元）</label>
+            <input type="number" id="wd-price" min="1" step="1" placeholder="如：189" required>
+          </div>
+        </div>
+        <div class="wardrobe-form-actions">
+          <button type="submit" class="btn">加入衣橱</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="weather container">
+      <h2>🌤️ 天气查询</h2>
+      <p class="weather-desc">
+        下半部分是天气：<code>fetch</code> 先查经纬度再查当前天气，
+        查询中显示加载状态，连续点击只会发一次请求，查不到城市会给出提示。
+      </p>
+
+      <div class="weather-box">
+        <div class="weather-form">
+          <input class="weather-city" id="wt-city" type="text" placeholder="输入城市，如：杭州" value="杭州">
+          <button class="btn" id="wt-btn" type="button">查询</button>
+        </div>
+
+        <div class="weather-result" id="wt-result">输入城市后点「查询」，也可以直接按回车</div>
+        <p class="weather-note">数据来源：Open-Meteo（免费、无需注册，需要联网）</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 高曼荧个人作品集 | 用 HTML + CSS + JS 手写</p>
+  </footer>
+
+  <script>
+    (function () {
+      const KEY = "my_wardrobe";
+
+      const DEFAULT_WARDROBE = [
+        { id: 1, name: "白色T恤",   color: "白色", season: "夏", price: 99  },
+        { id: 2, name: "蓝色衬衫",   color: "蓝色", season: "春", price: 199 },
+        { id: 3, name: "红色卫衣",   color: "红色", season: "秋", price: 259 },
+        { id: 4, name: "黑色西裤",   color: "黑色", season: "四季", price: 299 },
+        { id: 5, name: "米色风衣",   color: "米色", season: "春", price: 499 },
+        { id: 6, name: "牛仔外套",   color: "蓝色", season: "秋", price: 359 },
+        { id: 7, name: "灰色毛衣",   color: "灰色", season: "冬", price: 279 },
+        { id: 8, name: "碎花连衣裙", color: "花色", season: "夏", price: 329 },
+        { id: 9, name: "羽绒服",     color: "黑色", season: "冬", price: 899 },
+        { id: 10, name: "运动短裤",  color: "灰色", season: "夏", price: 129 }
+      ];
+
+      const COLOR_HEX = {
+        "白色": "#f3f4f6", "黑色": "#111827", "蓝色": "#3b82f6", "红色": "#ef4444",
+        "灰色": "#9ca3af", "米色": "#e7d8c0", "花色": "#f472b6", "卡其": "#c2a878",
+        "绿色": "#22c55e", "黄色": "#facc15", "紫色": "#a855f7"
+      };
+
+      const gridEl = document.getElementById("wd-grid");
+      const statsEl = document.getElementById("wd-stats");
+      const filtersEl = document.getElementById("wd-filters");
+      const formEl = document.getElementById("wd-form");
+      const searchEl = document.getElementById("wd-search");
+      const sortBtn = document.getElementById("wd-sort");
+      const clearBtn = document.getElementById("wd-clear");
+      const nameEl = document.getElementById("wd-name");
+      const colorEl = document.getElementById("wd-color");
+      const seasonEl = document.getElementById("wd-season");
+      const priceEl = document.getElementById("wd-price");
+      const toastEl = document.getElementById("wd-toast");
+
+      let currentSeason = "全部";
+      let sortAsc = null;
+
+      function loadData() {
+        try {
+          const str = localStorage.getItem(KEY);
+          return str ? JSON.parse(str) : DEFAULT_WARDROBE.slice();
+        } catch (err) {
+          return DEFAULT_WARDROBE.slice();
+        }
+      }
+
+      function saveData(list) {
+        localStorage.setItem(KEY, JSON.stringify(list));
+      }
+
+      function nextId(list) {
+        let max = 0;
+        for (const item of list) {
+          if (item.id > max) max = item.id;
+        }
+        return max + 1;
+      }
+
+      function colorToHex(color) {
+        return COLOR_HEX[color] || "#d1d5db";
+      }
+
+      function showToast(text, isError) {
+        toastEl.textContent = text;
+        if (isError) {
+          toastEl.classList.add("is-error");
+        } else {
+          toastEl.classList.remove("is-error");
+        }
+        toastEl.classList.add("is-show");
+        setTimeout(function () {
+          toastEl.classList.remove("is-show");
+        }, 2000);
+      }
+
+      function getVisibleList() {
+        let list = loadData();
+        if (currentSeason !== "全部") {
+          list = list.filter(function (item) {
+            return item.season === currentSeason;
+          });
+        }
+        const word = searchEl.value.trim();
+        if (word) {
+          list = list.filter(function (item) {
+            return item.name.includes(word) || item.color.includes(word);
+          });
+        }
+        if (sortAsc !== null) {
+          list.sort(function (a, b) {
+            return sortAsc ? a.price - b.price : b.price - a.price;
+          });
+        }
+        return list;
+      }
+
+      function renderList() {
+        const list = getVisibleList();
+
+        let total = 0;
+        for (const item of list) {
+          total = total + item.price;
+        }
+        const avg = list.length ? Math.round(total / list.length) : 0;
+        statsEl.textContent = "共 " + list.length + " 件 · 均价 ¥" + avg;
+
+        if (list.length === 0) {
+          gridEl.innerHTML = '<li class="cloth-empty">没有符合条件的衣服，下面加一件吧 👇</li>';
+          return;
+        }
+
+        gridEl.innerHTML = list.map(function (item) {
+          return `
+            <li>
+              <article class="card cloth-card">
+                <h3>${item.name}</h3>
+                <p class="cloth-meta">
+                  <span class="cloth-dot" style="background:${colorToHex(item.color)}"></span>
+                  ${item.color} · ${item.season}
+                </p>
+                <p class="cloth-price">¥${item.price}</p>
+                <button class="cloth-del" type="button" data-id="${item.id}">删除</button>
+              </article>
+            </li>`;
+        }).join("");
+      }
+
+      function addCloth(name, color, season, price) {
+        const list = loadData();
+        list.push({ id: nextId(list), name: name, color: color, season: season, price: price });
+        saveData(list);
+        renderList();
+      }
+
+      function removeCloth(id) {
+        const list = loadData().filter(function (item) {
+          return String(item.id) !== String(id);
+        });
+        saveData(list);
+        renderList();
+      }
+
+      function clearWardrobe() {
+        if (loadData().length === 0) {
+          showToast("衣橱已经是空的啦", true);
+          return;
+        }
+        saveData([]);
+        renderList();
+        showToast("🧹 衣橱已清空");
+      }
+
+      if (localStorage.getItem(KEY) === null) {
+        saveData(DEFAULT_WARDROBE);
+      }
+
+      gridEl.addEventListener("click", function (e) {
+        if (!e.target.matches(".cloth-del")) return;
+        removeCloth(e.target.dataset.id);
+        showToast("🗑️ 已删掉一件");
+      });
+
+      const chips = filtersEl.querySelectorAll(".chip");
+      for (const chip of chips) {
+        chip.addEventListener("click", function () {
+          currentSeason = this.dataset.season;
+          for (const other of chips) {
+            other.classList.remove("is-active");
+          }
+          this.classList.add("is-active");
+          renderList();
+        });
+      }
+
+      searchEl.addEventListener("input", function () {
+        renderList();
+      });
+
+      sortBtn.addEventListener("click", function () {
+        if (sortAsc === null) {
+          sortAsc = true;
+          sortBtn.textContent = "价格 ↑";
+        } else if (sortAsc) {
+          sortAsc = false;
+          sortBtn.textContent = "价格 ↓";
+        } else {
+          sortAsc = null;
+          sortBtn.textContent = "按价格排序";
+        }
+        renderList();
+      });
+
+      clearBtn.addEventListener("click", clearWardrobe);
+
+      formEl.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const name = nameEl.value.trim();
+        const color = colorEl.value.trim();
+        const season = seasonEl.value;
+        const price = Number(priceEl.value);
+
+        if (!name || !color) {
+          showToast("⚠️ 名称和颜色都要填", true);
+          return;
+        }
+        if (!Number.isFinite(price) || price <= 0) {
+          showToast("⚠️ 价格要填大于 0 的数字", true);
+          return;
+        }
+
+        addCloth(name, color, season, price);
+        formEl.reset();
+        showToast("✅ 已保存");
+      });
+
+      renderList();
+    })();
+  </script>
+
+  <script>
+    (function () {
+      const cityEl = document.getElementById("wt-city");
+      const btn = document.getElementById("wt-btn");
+      const resultEl = document.getElementById("wt-result");
+
+      const WEATHER_TEXT = {
+        0: "晴",
+        1: "多云", 2: "多云", 3: "阴",
+        45: "雾", 48: "雾凇",
+        51: "毛毛雨", 53: "毛毛雨", 55: "毛毛雨",
+        61: "小雨", 63: "中雨", 65: "大雨",
+        66: "冻雨", 67: "冻雨",
+        71: "小雪", 73: "中雪", 75: "大雪", 77: "雪粒",
+        80: "阵雨", 81: "阵雨", 82: "强阵雨",
+        85: "阵雪", 86: "阵雪",
+        95: "雷阵雨", 96: "雷阵雨伴冰雹", 99: "雷阵雨伴冰雹"
+      };
+
+      let isLoading = false;
+
+      function weatherToText(code) {
+        return WEATHER_TEXT[code] || "未知天气";
+      }
+
+      function tipByTemp(temp) {
+        if (temp >= 28) return "🔥 体感建议：穿短袖，别忘了防晒";
+        if (temp >= 18) return "🙂 体感建议：温度刚好，一件长袖就够";
+        if (temp >= 10) return "🍂 体感建议：有点凉，加件薄外套";
+        if (temp >= 0) return "🧥 体感建议：冷了，毛衣配外套";
+        return "🧣 体感建议：零下了，羽绒服和帽子都戴上";
+      }
+
+      function showLoading() {
+        resultEl.innerHTML = '<p class="weather-loading">⏳ 正在查询…</p>';
+      }
+
+      function showError(msg) {
+        resultEl.innerHTML = '<p class="weather-err">❌ ' + msg + '</p>';
+      }
+
+      function showWeather(city, weather) {
+        resultEl.innerHTML = `
+          <p class="weather-place">${city}</p>
+          <p class="weather-temp">${weather.temperature}°C</p>
+          <p class="weather-meta">${weatherToText(weather.weathercode)} · 风速 ${weather.windspeed} km/h</p>
+          <p class="weather-tip">${tipByTemp(weather.temperature)}</p>`;
+      }
+
+      async function getWeather(cityName) {
+        const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityName)}&language=zh`;
+        const geoRes = await fetch(geoUrl);
+        if (!geoRes.ok) throw new Error("地理服务出错：" + geoRes.status);
+        const geoData = await geoRes.json();
+        if (!geoData.results || geoData.results.length === 0) {
+          throw new Error("找不到这个城市，换个名字试试？");
+        }
+        const place = geoData.results[0];
+
+        const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&current_weather=true`;
+        const wRes = await fetch(weatherUrl);
+        if (!wRes.ok) throw new Error("天气服务出错：" + wRes.status);
+        const wData = await wRes.json();
+        return { city: place.name, weather: wData.current_weather };
+      }
+
+      async function query() {
+        if (isLoading) return;
+
+        const city = cityEl.value.trim();
+        if (!city) {
+          showError("先输入城市名");
+          return;
+        }
+
+        isLoading = true;
+        btn.disabled = true;
+        btn.textContent = "查询中…";
+        showLoading();
+
+        try {
+          const info = await getWeather(city);
+          showWeather(info.city, info.weather);
+        } catch (err) {
+          showError(err.message);
+        } finally {
+          isLoading = false;
+          btn.disabled = false;
+          btn.textContent = "查询";
+        }
+      }
+
+      btn.addEventListener("click", query);
+      cityEl.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") query();
+      });
+    })();
+  </script>
+</body>
+</html>
