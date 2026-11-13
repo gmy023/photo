@@ -7,23 +7,78 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div class="save-toast" id="saveToast"></div>
+
   <header class="site-header">
     <nav class="nav container">
       <a class="logo" href="index.html">高曼荧<span>.design</span></a>
       <ul class="nav-menu">
-        <li><a href="index.html#wardrobe">← 回到作品集</a></li>
+        <li><a href="index.html">首页</a></li>
+        <li><a href="photo.html">摄影</a></li>
+        <li><a class="is-active" href="wardrobe.html">衣橱</a></li>
+        <li><a href="day19/http-cards.html">HTTP</a></li>
+        <li><a href="weather.html">天气</a></li>
       </ul>
     </nav>
   </header>
 
   <main>
     <section class="wardrobe container page-wardrobe">
-      <h2>👗 我的衣橱（DOM 渲染版）</h2> 
+      <h2>👗 我的衣橱</h2>
+      <p class="wardrobe-desc">
+        衣服数据存在 <code>localStorage</code> 里，添加、删除后刷新页面也不会丢 ——
+        页面打开时读数据、增删之后存回去，再用 <code>map</code> 把卡片渲染出来，
+        还可以按季节筛选、按名称或颜色搜索、按价格从低到高或从高到低排序。
+      </p>
 
-      <p class="wardrobe-count" id="count">正在渲染衣橱…</p>
+      <div class="wardrobe-toolbar">
+        <div class="wardrobe-filters" id="wardrobeFilters">
+          <button class="chip is-active" type="button" data-season="全部">全部</button>
+          <button class="chip" type="button" data-season="春">春</button>
+          <button class="chip" type="button" data-season="夏">夏</button>
+          <button class="chip" type="button" data-season="秋">秋</button>
+          <button class="chip" type="button" data-season="冬">冬</button>
+          <button class="chip" type="button" data-season="四季">四季</button>
+        </div>
+        <div class="wardrobe-tools">
+          <input class="wardrobe-search" id="wardrobeSearch" type="text" placeholder="搜索名称或颜色">
+          <button class="chip" type="button" id="sortBtn">按价格排序</button>
+        </div>
+        <p class="wardrobe-stats" id="wardrobeStats"></p>
+      </div>
 
-      <ul class="wardrobe-grid" id="wardrobe"></ul>
+      <ul class="wardrobe-grid" id="wardrobeGrid"></ul>
 
+      <form class="wardrobe-form" id="wardrobeForm">
+        <h3>➕ 加一件新衣服</h3>
+        <div class="wardrobe-form-row">
+          <div class="form-item">
+            <label for="clothName">名称</label>
+            <input type="text" id="clothName" placeholder="如：卡其短裙" required>
+          </div>
+          <div class="form-item">
+            <label for="clothColor">颜色</label>
+            <input type="text" id="clothColor" placeholder="如：卡其" required>
+          </div>
+          <div class="form-item">
+            <label for="clothSeason">季节</label>
+            <select id="clothSeason">
+              <option value="春">春</option>
+              <option value="夏">夏</option>
+              <option value="秋">秋</option>
+              <option value="冬">冬</option>
+              <option value="四季">四季</option>
+            </select>
+          </div>
+          <div class="form-item">
+            <label for="clothPrice">价格（元）</label>
+            <input type="number" id="clothPrice" min="1" step="1" placeholder="如：189" required>
+          </div>
+        </div>
+        <div class="wardrobe-form-actions">
+          <button type="submit" class="btn">加入衣橱</button>
+        </div>
+      </form>
     </section>
   </main>
 
@@ -35,77 +90,205 @@
     (function () {
       const KEY = "my_wardrobe";
 
-      const defaultWardrobe = [
-        { id: 1, name: "白色T恤",   color: "白色", season: "夏", price: 99,  emoji: "👕" },
-        { id: 2, name: "蓝色衬衫",   color: "蓝色", season: "春", price: 199, emoji: "👔" },
-        { id: 3, name: "红色卫衣",   color: "红色", season: "秋", price: 259, emoji: "🧥" },
-        { id: 4, name: "黑色西裤",   color: "黑色", season: "四季", price: 299, emoji: "👖" },
-        { id: 5, name: "米色风衣",   color: "米色", season: "春", price: 499, emoji: "🧥" },
-        { id: 6, name: "牛仔外套",   color: "蓝色", season: "秋", price: 359, emoji: "👕" },
-        { id: 7, name: "灰色毛衣",   color: "灰色", season: "冬", price: 279, emoji: "🧶" },
-        { id: 8, name: "碎花连衣裙", color: "花色", season: "夏", price: 329, emoji: "👗" },
-        { id: 9, name: "羽绒服",     color: "黑色", season: "冬", price: 899, emoji: "🧥" },
-        { id: 10, name: "运动短裤",  color: "灰色", season: "夏", price: 129, emoji: "🩳" }
+      const DEFAULT_WARDROBE = [
+        { id: 1, name: "白色T恤",   color: "白色", season: "夏", price: 99  },
+        { id: 2, name: "蓝色衬衫",   color: "蓝色", season: "春", price: 199 },
+        { id: 3, name: "红色卫衣",   color: "红色", season: "秋", price: 259 },
+        { id: 4, name: "黑色西裤",   color: "黑色", season: "四季", price: 299 },
+        { id: 5, name: "米色风衣",   color: "米色", season: "春", price: 499 },
+        { id: 6, name: "牛仔外套",   color: "蓝色", season: "秋", price: 359 },
+        { id: 7, name: "灰色毛衣",   color: "灰色", season: "冬", price: 279 },
+        { id: 8, name: "碎花连衣裙", color: "花色", season: "夏", price: 329 },
+        { id: 9, name: "羽绒服",     color: "黑色", season: "冬", price: 899 },
+        { id: 10, name: "运动短裤",  color: "灰色", season: "夏", price: 129 }
       ];
+
+      const COLOR_HEX = {
+        "白色": "#f3f4f6", "黑色": "#111827", "蓝色": "#3b82f6", "红色": "#ef4444",
+        "灰色": "#9ca3af", "米色": "#e7d8c0", "花色": "#f472b6", "卡其": "#c2a878",
+        "绿色": "#22c55e", "黄色": "#facc15", "紫色": "#a855f7"
+      };
+
+      const gridEl = document.getElementById("wardrobeGrid");
+      const statsEl = document.getElementById("wardrobeStats");
+      const filtersEl = document.getElementById("wardrobeFilters");
+      const formEl = document.getElementById("wardrobeForm");
+      const searchEl = document.getElementById("wardrobeSearch");
+      const sortBtn = document.getElementById("sortBtn");
+      const toastEl = document.getElementById("saveToast");
+
+      let currentSeason = "全部";
+      let sortAsc = null;
 
       function loadData() {
         try {
           const str = localStorage.getItem(KEY);
-          return str ? JSON.parse(str) : defaultWardrobe.slice();
-        } catch {
-          return defaultWardrobe.slice();
+          return str ? JSON.parse(str) : DEFAULT_WARDROBE.slice();
+        } catch (err) {
+          return DEFAULT_WARDROBE.slice();
         }
       }
 
-      const wardrobe = loadData();
+      function saveData(list) {
+        localStorage.setItem(KEY, JSON.stringify(list));
+      }
 
-      const container = document.querySelector("#wardrobe");
-      const countEl = document.getElementById("count");
+      function nextId(list) {
+        let max = 0;
+        for (const item of list) {
+          if (item.id > max) max = item.id;
+        }
+        return max + 1;
+      }
 
-      for (const item of wardrobe) {
-        const li = document.createElement("li");
-        const card = document.createElement("article");
-        card.className = "card cloth-card";
+      function colorToHex(color) {
+        return COLOR_HEX[color] || "#d1d5db";
+      }
 
-        const img = document.createElement("div");
-        img.className = "cloth-img";
-        img.textContent = item.emoji || "👕";
+      function showToast(text, isError) {
+        toastEl.textContent = text;
+        if (isError) {
+          toastEl.classList.add("is-error");
+        } else {
+          toastEl.classList.remove("is-error");
+        }
+        toastEl.classList.add("is-show");
+        setTimeout(function () {
+          toastEl.classList.remove("is-show");
+        }, 2000);
+      }
 
-        const nameEl = document.createElement("h3");
-        nameEl.textContent = item.name;
+      function getVisibleList() {
+        let list = loadData();
+        if (currentSeason !== "全部") {
+          list = list.filter(function (item) {
+            return item.season === currentSeason;
+          });
+        }
+        const word = searchEl.value.trim();
+        if (word) {
+          list = list.filter(function (item) {
+            return item.name.includes(word) || item.color.includes(word);
+          });
+        }
+        if (sortAsc !== null) {
+          list.sort(function (a, b) {
+            return sortAsc ? a.price - b.price : b.price - a.price;
+          });
+        }
+        return list;
+      }
 
-        const metaEl = document.createElement("p");
-        metaEl.className = "cloth-meta";
-        metaEl.textContent = `¥${item.price} · ${item.color}`;
+      function render() {
+        const list = getVisibleList();
 
-        const tagEl = document.createElement("span");
-        tagEl.className = "tag";
-        tagEl.textContent = item.season;
+        let total = 0;
+        for (const item of list) {
+          total = total + item.price;
+        }
+        const avg = list.length ? Math.round(total / list.length) : 0;
+        statsEl.textContent = "共 " + list.length + " 件 · 均价 ¥" + avg;
 
-        card.appendChild(img);
-        card.appendChild(nameEl);
-        card.appendChild(metaEl);
-        card.appendChild(tagEl);
-
-        if (item.price > 300) {
-          const luxEl = document.createElement("span");
-          luxEl.className = "tag is-lux";
-          luxEl.textContent = "💎 轻奢";
-          card.appendChild(luxEl);
+        if (list.length === 0) {
+          gridEl.innerHTML = '<li class="cloth-empty">没有找到符合条件的衣服，下面加一件吧 👇</li>';
+          return;
         }
 
-        li.appendChild(card);
-        container.appendChild(li);
+        gridEl.innerHTML = list.map(function (item) {
+          return `
+            <li>
+              <article class="card cloth-card">
+                <h3>${item.name}</h3>
+                <p class="cloth-meta">
+                  <span class="cloth-dot" style="background:${colorToHex(item.color)}"></span>
+                  ${item.color} · ${item.season}
+                </p>
+                <p class="cloth-price">¥${item.price}</p>
+                <button class="cloth-del" type="button" data-id="${item.id}">删除</button>
+              </article>
+            </li>`;
+        }).join("");
       }
 
-      let total = 0;
-      for (const item of wardrobe) {
-        total = total + item.price;
+      function addCloth(name, color, season, price) {
+        const list = loadData();
+        list.push({ id: nextId(list), name: name, color: color, season: season, price: price });
+        saveData(list);
+        render();
       }
-      const avg = wardrobe.length ? Math.round(total / wardrobe.length) : 0;
-      countEl.textContent = `共 ${wardrobe.length} 件，平均 ¥${avg}`;
+
+      function removeCloth(id) {
+        const list = loadData().filter(function (item) {
+          return String(item.id) !== String(id);
+        });
+        saveData(list);
+        render();
+      }
+
+      if (localStorage.getItem(KEY) === null) {
+        saveData(DEFAULT_WARDROBE);
+      }
+
+      gridEl.addEventListener("click", function (e) {
+        if (!e.target.matches(".cloth-del")) return;
+        removeCloth(e.target.dataset.id);
+        showToast("🗑️ 已删掉一件");
+      });
+
+      const chips = filtersEl.querySelectorAll(".chip");
+      for (const chip of chips) {
+        chip.addEventListener("click", function () {
+          currentSeason = this.dataset.season;
+          for (const other of chips) {
+            other.classList.remove("is-active");
+          }
+          this.classList.add("is-active");
+          render();
+        });
+      }
+
+      searchEl.addEventListener("input", function () {
+        render();
+      });
+
+      sortBtn.addEventListener("click", function () {
+        if (sortAsc === null) {
+          sortAsc = true;
+          sortBtn.textContent = "价格 ↑";
+        } else if (sortAsc) {
+          sortAsc = false;
+          sortBtn.textContent = "价格 ↓";
+        } else {
+          sortAsc = null;
+          sortBtn.textContent = "按价格排序";
+        }
+        render();
+      });
+
+      formEl.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const name = document.getElementById("clothName").value.trim();
+        const color = document.getElementById("clothColor").value.trim();
+        const season = document.getElementById("clothSeason").value;
+        const price = Number(document.getElementById("clothPrice").value);
+
+        if (!name || !color) {
+          showToast("⚠️ 名称和颜色都要填", true);
+          return;
+        }
+        if (!Number.isFinite(price) || price <= 0) {
+          showToast("⚠️ 价格要填大于 0 的数字", true);
+          return;
+        }
+
+        addCloth(name, color, season, price);
+        formEl.reset();
+        showToast("✅ 已保存");
+      });
+
+      render();
     })();
   </script>
-
 </body>
 </html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>天气 | 高曼荧的个人作品集</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav container">
+      <a class="logo" href="index.html">高曼荧<span>.design</span></a>
+      <ul class="nav-menu">
+        <li><a href="index.html">首页</a></li>
+        <li><a href="photo.html">摄影</a></li>
+        <li><a href="wardrobe.html">衣橱</a></li>
+        <li><a href="day19/http-cards.html">HTTP</a></li>
+        <li><a class="is-active" href="weather.html">天气</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section id="weather" class="weather container">
+      <h2>🌤️ 天气查询</h2>
+      <p class="weather-desc">
+        用 <code>fetch</code> 调 Open-Meteo 的免费接口：先把城市名换成经纬度，再用经纬度查当前天气。
+        查询时按钮变成加载状态，断网之类的错误靠 <code>try/catch</code> 接住，服务器返回的错误状态码靠 <code>res.ok</code> 检查。
+      </p>
+
+      <div class="weather-box">
+        <div class="weather-form">
+          <input class="weather-city" id="wt-city" type="text" placeholder="输入城市，如：杭州" value="杭州">
+          <button class="btn" id="wt-btn" type="button">查询</button>
+        </div>
+
+        <div class="weather-result" id="wt-result">输入城市后点「查询」，也可以直接按回车</div>
+        <p class="weather-note">数据来源：Open-Meteo（免费、无需注册，需要联网）</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 高曼荧个人作品集 | 用 HTML + CSS + JS 手写</p>
+  </footer>
+
+  <script>
+    (function () {
+      const cityEl = document.getElementById("wt-city");
+      const btn = document.getElementById("wt-btn");
+      const resultEl = document.getElementById("wt-result");
+
+      const WEATHER_TEXT = {
+        0: "晴",
+        1: "多云", 2: "多云", 3: "阴",
+        45: "雾", 48: "雾凇",
+        51: "毛毛雨", 53: "毛毛雨", 55: "毛毛雨",
+        61: "小雨", 63: "中雨", 65: "大雨",
+        66: "冻雨", 67: "冻雨",
+        71: "小雪", 73: "中雪", 75: "大雪", 77: "雪粒",
+        80: "阵雨", 81: "阵雨", 82: "强阵雨",
+        85: "阵雪", 86: "阵雪",
+        95: "雷阵雨", 96: "雷阵雨伴冰雹", 99: "雷阵雨伴冰雹"
+      };
+
+      let isLoading = false;
+
+      function weatherToText(code) {
+        return WEATHER_TEXT[code] || "未知天气";
+      }
+
+      function tipByTemp(temp) {
+        if (temp >= 28) return "🔥 体感建议：穿短袖，别忘了防晒";
+        if (temp >= 18) return "🙂 体感建议：温度刚好，一件长袖就够";
+        if (temp >= 10) return "🍂 体感建议：有点凉，加件薄外套";
+        if (temp >= 0) return "🧥 体感建议：冷了，毛衣配外套";
+        return "🧣 体感建议：零下了，羽绒服和帽子都戴上";
+      }
+
+      function showLoading() {
+        resultEl.innerHTML = '<p class="weather-loading">⏳ 正在查询…</p>';
+      }
+
+      function showError(msg) {
+        resultEl.innerHTML = '<p class="weather-err">❌ ' + msg + '</p>';
+      }
+
+      function showWeather(city, weather) {
+        resultEl.innerHTML = `
+          <p class="weather-place">${city}</p>
+          <p class="weather-temp">${weather.temperature}°C</p>
+          <p class="weather-meta">${weatherToText(weather.weathercode)} · 风速 ${weather.windspeed} km/h</p>
+          <p class="weather-tip">${tipByTemp(weather.temperature)}</p>`;
+      }
+
+      async function getWeather(cityName) {
+        const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityName)}&language=zh`;
+        const geoRes = await fetch(geoUrl);
+        if (!geoRes.ok) throw new Error("地理服务出错：" + geoRes.status);
+        const geoData = await geoRes.json();
+        if (!geoData.results || geoData.results.length === 0) {
+          throw new Error("找不到这个城市，换个名字试试？");
+        }
+        const place = geoData.results[0];
+
+        const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&current_weather=true`;
+        const wRes = await fetch(weatherUrl);
+        if (!wRes.ok) throw new Error("天气服务出错：" + wRes.status);
+        const wData = await wRes.json();
+        return { city: place.name, weather: wData.current_weather };
+      }
+
+      async function query() {
+        if (isLoading) return;
+
+        const city = cityEl.value.trim();
+        if (!city) {
+          showError("先输入城市名");
+          return;
+        }
+
+        isLoading = true;
+        btn.disabled = true;
+        btn.textContent = "查询中…";
+        showLoading();
+
+        try {
+          const info = await getWeather(city);
+          showWeather(info.city, info.weather);
+        } catch (err) {
+          showError(err.message);
+        } finally {
+          isLoading = false;
+          btn.disabled = false;
+          btn.textContent = "查询";
+        }
+      }
+
+      btn.addEventListener("click", query);
+      cityEl.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") query();
+      });
+    })();
+  </script>
+</body>
+</html>
